@@ -17,7 +17,7 @@ void* funkce(void* p) {
     Obrazovka* obrazovka = Obrazovka::instance();
     SDL_PixelFormat* fmt = obrazovka->screen->format;
 
-    // Předvýpočet konstant pro cyklus
+
     double inv_zoom = 0.01 / task->zoom;
 
     for (int y = task->y1; y < task->y2; y++) {
@@ -26,14 +26,12 @@ void* funkce(void* p) {
         for (int x = task->x1; x < task->x2; x++) {
             double xm = (x - 400) * inv_zoom + task->x;
             
-            // Optimalizace: Použití double místo objektu Komplex pro vnitřní výpočet
             double zx = 0;
             double zy = 0;
             double zx2 = 0; // zx*zx
             double zy2 = 0; // zy*zy
             
             int s = 0;
-            // Limit 200 iterací pro lepší detaily při zoomu
             while (zx2 + zy2 <= 16.0 && s < 200) {
                 zy = 2.0 * zx * zy + ym;
                 zx = zx2 - zy2 + xm;
@@ -46,7 +44,6 @@ void* funkce(void* p) {
             if (s == 200) {
                 pixel = SDL_MapRGB(fmt, 0, 0, 0);
             } else {
-                // Plynulejší modrý gradient
                 Uint8 r = (Uint8)(s * 3 % 256);
                 Uint8 g = (Uint8)(s * 7 % 256);
                 Uint8 b = (Uint8)(s * 13 % 256);
